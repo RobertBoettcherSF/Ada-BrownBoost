@@ -212,7 +212,7 @@ package body Brown_Boost is
          C_Jac := -K * F1; 
 
          J_Det := JA * JD - JB * C_Jac;
-         if abs (J_Det) < 1.0e-9 then
+         if abs (J_Det) < 1.0e-12 then
             exit;
          end if;
 
@@ -257,11 +257,32 @@ package body Brown_Boost is
 
       while S > 0.0001 and M.Size < Capacity loop
          -- 1. Derive weights via exponential decay mapped to margins and time left
-         for I in Features'Range (1) loop
-            Weights (I) := Exp (- ((Margins (I) + S)**2) / C);
-         end loop;
+         declare
+            Sum_W : Value_Type := 0.0;
+            Max_E : Value_Type := -1.0e300;
+         begin
+            -- Utilize log-sum-exp stabilization to avoid underflow
+            for I in Features'Range (1) loop
+               declare
+                  E : constant Value_Type := - ((Margins (I) + S)**2) / C;
+               begin
+                  if E > Max_E then
+                     Max_E := E;
+                  end if;
+               end;
+            end loop;
 
-         -- 2. Extract optimal weak learner based on current weighting
+            for I in Features'Range (1) loop
+               Weights (I) := Exp (- ((Margins (I) + S)**2) / C - Max_E);
+               Sum_W := Sum_W + Weights (I);
+            end loop;
+
+            for I in Features'Range (1) loop
+               Weights (I) := Weights (I) / Sum_W;
+            end loop;
+         end;
+
+         -- 2. Extract optimal weak learner based on normalized weighting
          Find_Best_Stump (Features, Labels, Weights, Best_Stump, Max_Adv);
          if Max_Adv <= 0.0001 then
             exit;
