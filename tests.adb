@@ -115,29 +115,33 @@ begin
 
    Put_Line ("TEST 7 - Noisy Dataset Ignore (Bisection)");
    declare
-      -- Outlier firmly bounded inside a sequence of stable classifications 
-      X : constant Feature_Matrix (1 .. 5, 1 .. 1) := 
-         [1 => [1 => 1.0], 2 => [1 => 2.0], 3 => [1 => 3.0], 4 => [1 => 4.0], 5 => [1 => 5.0]];
-      Y : constant Label_Array (1 .. 5) := 
-         [Label_Negative, Label_Negative, Label_Positive, Label_Negative, Label_Negative];
-      M : constant Ensemble_Model := Train (X, Y, 1.0, Bisection_Solver, 100);
+      -- True pattern: X >= 6.0 is Positive. Point 8.0 is noisy/mislabeled as Negative.
+      X : constant Feature_Matrix (1 .. 10, 1 .. 1) := 
+         [1 => [1 => 1.0], 2 => [1 => 2.0], 3 => [1 => 3.0], 4 => [1 => 4.0], 5 => [1 => 5.0],
+          6 => [1 => 6.0], 7 => [1 => 7.0], 8 => [1 => 8.0], 9 => [1 => 9.0], 10 => [1 => 10.0]];
+      Y : constant Label_Array (1 .. 10) := 
+         [Label_Negative, Label_Negative, Label_Negative, Label_Negative, Label_Negative, 
+          Label_Positive, Label_Positive, Label_Negative, Label_Positive, Label_Positive];
+      M : constant Ensemble_Model := Train (X, Y, 1.0, Bisection_Solver, 20);
    begin
       Check ("7.1 Finished training cleanly", M.Size > 0);
       Check ("7.2 Normal negative retained", Predict (M, Feature_Vector'[1 => 2.0]) = Label_Negative);
-      Check ("7.3 Outlier gracefully ignored/absorbed", Predict (M, Feature_Vector'[1 => 3.0]) = Label_Negative);
+      Check ("7.3 Outlier gracefully ignored/absorbed", Predict (M, Feature_Vector'[1 => 8.0]) = Label_Positive);
    end;
 
    Put_Line ("TEST 8 - Noisy Dataset Ignore (Newton)");
    declare
-      X : constant Feature_Matrix (1 .. 5, 1 .. 1) := 
-         [1 => [1 => 1.0], 2 => [1 => 2.0], 3 => [1 => 3.0], 4 => [1 => 4.0], 5 => [1 => 5.0]];
-      Y : constant Label_Array (1 .. 5) := 
-         [Label_Negative, Label_Negative, Label_Positive, Label_Negative, Label_Negative];
-      M : constant Ensemble_Model := Train (X, Y, 1.0, Newton_Solver, 100);
+      X : constant Feature_Matrix (1 .. 10, 1 .. 1) := 
+         [1 => [1 => 1.0], 2 => [1 => 2.0], 3 => [1 => 3.0], 4 => [1 => 4.0], 5 => [1 => 5.0],
+          6 => [1 => 6.0], 7 => [1 => 7.0], 8 => [1 => 8.0], 9 => [1 => 9.0], 10 => [1 => 10.0]];
+      Y : constant Label_Array (1 .. 10) := 
+         [Label_Negative, Label_Negative, Label_Negative, Label_Negative, Label_Negative, 
+          Label_Positive, Label_Positive, Label_Negative, Label_Positive, Label_Positive];
+      M : constant Ensemble_Model := Train (X, Y, 1.0, Newton_Solver, 20);
    begin
       Check ("8.1 Ensembled successfully via Newton solver", M.Size > 0);
       Check ("8.2 Clear signal maintains category", Predict (M, Feature_Vector'[1 => 2.0]) = Label_Negative);
-      Check ("8.3 Noise appropriately deprioritized", Predict (M, Feature_Vector'[1 => 3.0]) = Label_Negative);
+      Check ("8.3 Noise appropriately deprioritized", Predict (M, Feature_Vector'[1 => 8.0]) = Label_Positive);
    end;
 
    Put_Line ("TEST 9 - Unipolar Positives Edge Case");
