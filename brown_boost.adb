@@ -50,7 +50,7 @@ package body Brown_Boost is
                Dir := (if D = 1 then 1.0 else -1.0);
                Adv := 0.0;
                for J in Features'Range (1) loop
-                  Y := (if Labels (J) = Positive then 1.0 else -1.0);
+                  Y := (if Labels (J) = Label_Positive then 1.0 else -1.0);
                   Pred := (if Features (J, F) * Dir >= Thresh * Dir then 1.0 else -1.0);
                   Adv := Adv + Weights (J) * Pred * Y;
                end loop;
@@ -121,7 +121,7 @@ package body Brown_Boost is
             Pred : constant Value_Type :=
                (if Features (I, Stump.Feature) * Stump.Direction >= Stump.Threshold * Stump.Direction
                 then 1.0 else -1.0);
-            Y : constant Value_Type := (if Labels (I) = Positive then 1.0 else -1.0);
+            Y : constant Value_Type := (if Labels (I) = Label_Positive then 1.0 else -1.0);
          begin
             Z (I) := Pred * Y;
             V_Target := V_Target + Phi (Margins (I) + S, C);
@@ -179,7 +179,7 @@ package body Brown_Boost is
             Pred : constant Value_Type :=
                (if Features (I, Stump.Feature) * Stump.Direction >= Stump.Threshold * Stump.Direction
                 then 1.0 else -1.0);
-            Y : constant Value_Type := (if Labels (I) = Positive then 1.0 else -1.0);
+            Y : constant Value_Type := (if Labels (I) = Label_Positive then 1.0 else -1.0);
          begin
             Z (I) := Pred * Y;
             V_Target := V_Target + Phi (Margins (I) + S, C);
@@ -245,7 +245,7 @@ package body Brown_Boost is
    is
       M : Ensemble_Model (Capacity);
       S : Value_Type := C;
-      Margins : array (Features'Range (1)) of Value_Type := (others => 0.0);
+      Margins : array (Features'Range (1)) of Value_Type := [others => 0.0];
       Weights : array (Features'Range (1)) of Value_Type;
       Best_Stump : Decision_Stump;
       Max_Adv : Value_Type;
@@ -281,7 +281,7 @@ package body Brown_Boost is
                Pred : constant Value_Type :=
                   (if Features (I, Best_Stump.Feature) * Best_Stump.Direction >= Best_Stump.Threshold * Best_Stump.Direction
                    then 1.0 else -1.0);
-               Y : constant Value_Type := (if Labels (I) = Positive then 1.0 else -1.0);
+               Y : constant Value_Type := (if Labels (I) = Label_Positive then 1.0 else -1.0);
             begin
                Margins (I) := Margins (I) + Alpha * Pred * Y;
             end;
@@ -304,7 +304,7 @@ package body Brown_Boost is
       Sum : Value_Type := 0.0;
    begin
       if Model.Size = 0 then
-         return Negative;
+         return Label_Negative;
       end if;
 
       for I in 1 .. Model.Size loop
@@ -320,9 +320,9 @@ package body Brown_Boost is
       end loop;
 
       if Sum >= 0.0 then
-         return Positive;
+         return Label_Positive;
       else
-         return Negative;
+         return Label_Negative;
       end if;
    end Predict;
 
