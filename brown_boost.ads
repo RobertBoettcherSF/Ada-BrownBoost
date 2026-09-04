@@ -2,7 +2,7 @@ package Brown_Boost is
 
    -- Domain types for the algorithm
    type Value_Type is new Long_Float;
-   type Class_Label is (Negative, Positive);
+   type Class_Label is (Label_Negative, Label_Positive);
 
    -- Feature and example definitions
    type Feature_Vector is array (Positive range <>) of Value_Type;
