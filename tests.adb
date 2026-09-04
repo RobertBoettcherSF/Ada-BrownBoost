@@ -24,7 +24,9 @@ begin
    begin
       Check ("1.1 Size is 0", M.Size = 0);
       Check ("1.2 Predicts Negative by default", Predict (M, V) = Label_Negative);
+      pragma Warnings (Off);
       Check ("1.3 Capacity matches assignment", M.Capacity = 10);
+      pragma Warnings (On);
    end;
 
    Put_Line ("TEST 2 - Basic Separation (Bisection Solver)");
@@ -61,7 +63,7 @@ begin
          declare
             M : constant Ensemble_Model := Train (X, Y, 0.0, Bisection_Solver, 10);
          begin
-            null;
+            Check ("Unreachable block check bypass", M.Size = 0);
          end;
       exception
          when others => Hit := True;
@@ -81,7 +83,7 @@ begin
          declare
             M : constant Ensemble_Model := Train (X, Y, 1.0, Bisection_Solver, 10);
          begin
-            null;
+            Check ("Unreachable block check bypass", M.Size = 0);
          end;
       exception
          when others => Hit := True;
@@ -101,7 +103,7 @@ begin
          declare
             M : constant Ensemble_Model := Train (X, Y, 1.0, Bisection_Solver, 10);
          begin
-            null;
+            Check ("Unreachable block check bypass", M.Size = 0);
          end;
       exception
          when others => Hit := True;
@@ -144,7 +146,7 @@ begin
       M : constant Ensemble_Model := Train (X, Y, 1.0, Bisection_Solver, 10);
    begin
       Check ("9.1 Training loop naturally exits", True);
-      Check ("9.2 Model size bounds validated", M.Size >= 0);
+      Check ("9.2 Model size bounds validated", M.Size <= 10);
       Check ("9.3 Target cleanly resolves Positive", Predict (M, Feature_Vector'[1 => 2.5]) = Label_Positive);
    end;
 
@@ -156,7 +158,7 @@ begin
       M : constant Ensemble_Model := Train (X, Y, 1.0, Newton_Solver, 10);
    begin
       Check ("10.1 Completed execution correctly", True);
-      Check ("10.2 Model size remains intact", M.Size >= 0);
+      Check ("10.2 Model size remains intact", M.Size <= 10);
       Check ("10.3 Target heavily resolves Negative", Predict (M, Feature_Vector'[1 => 2.5]) = Label_Negative);
    end;
 
