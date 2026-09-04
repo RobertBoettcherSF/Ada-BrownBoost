@@ -34,7 +34,7 @@ package body Brown_Boost is
    procedure Find_Best_Stump
      (Features : Feature_Matrix;
       Labels   : Label_Array;
-      Weights  : in array (Positive range <>) of Value_Type;
+      Weights  : in Feature_Vector;
       Best     : out Decision_Stump;
       Max_Adv  : out Value_Type)
    is
@@ -65,7 +65,7 @@ package body Brown_Boost is
 
    -- Bisection substep to resolve Alpha analytically when U is locked
    function Solve_Alpha
-     (Z, R : in array (Positive range <>) of Value_Type;
+     (Z, R : in Feature_Vector;
       U, C : Value_Type) return Value_Type
    is
       Low_A  : Value_Type := 0.0;
@@ -106,7 +106,7 @@ package body Brown_Boost is
    procedure Solve_Bisection
      (Features : Feature_Matrix;
       Labels   : Label_Array;
-      Margins  : in array (Positive range <>) of Value_Type;
+      Margins  : in Feature_Vector;
       Stump    : Decision_Stump;
       S, C     : Value_Type;
       Alpha, T : out Value_Type)
@@ -114,7 +114,7 @@ package body Brown_Boost is
       V_Target : Value_Type := 0.0;
       Low_U, High_U, Mid_U : Value_Type;
       V_Mid, A_Mid : Value_Type;
-      Z : array (Features'Range (1)) of Value_Type;
+      Z : Feature_Vector (Features'Range (1));
    begin
       for I in Features'Range (1) loop
          declare
@@ -161,14 +161,14 @@ package body Brown_Boost is
    procedure Solve_Newton
      (Features : Feature_Matrix;
       Labels   : Label_Array;
-      Margins  : in array (Positive range <>) of Value_Type;
+      Margins  : in Feature_Vector;
       Stump    : Decision_Stump;
       S, C     : Value_Type;
       Alpha, T : out Value_Type)
    is
       A_Curr, U_Curr : Value_Type;
       V_Target : Value_Type := 0.0;
-      Z : array (Features'Range (1)) of Value_Type;
+      Z : Feature_Vector (Features'Range (1));
       F1, F2 : Value_Type;
       JA, JB, JD, J_Det, C_Jac : Value_Type;
       dA, dU : Value_Type;
@@ -245,8 +245,8 @@ package body Brown_Boost is
    is
       M : Ensemble_Model (Capacity);
       S : Value_Type := C;
-      Margins : array (Features'Range (1)) of Value_Type := [others => 0.0];
-      Weights : array (Features'Range (1)) of Value_Type;
+      Margins : Feature_Vector (Features'Range (1)) := [others => 0.0];
+      Weights : Feature_Vector (Features'Range (1));
       Best_Stump : Decision_Stump;
       Max_Adv : Value_Type;
       Alpha, T : Value_Type;
